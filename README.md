@@ -19,6 +19,28 @@ To select manually the different entries
 To launch a batch of simulations by harcoding the entries 
 - Simulation_Cinematique_Batch
 
+# Code Architecture 
+
+The code offers 2 possibilities for kinematic simulation :
+
+- Simulation_Cinematique.m --> Pre_Traitements.m --> Boucle_Optimisation.m to create a single simulation from a set of handpicked variables
+
+- Simulation_Cinematique_Batch.m --> Formatage_Variables_Batch --> Pre_Traitements.m --> Boucle_Optimisation.m to create a set of simulations from hardcoded sets of variables.
+
+# Ins and Outs 
+
+Ins :
+
+As files and variables set either in Simulation_Cinematique or Simulation_Cinematique_Batch :
+- 
+
+
+Outs : 
+
+As a structure 'Results' saved in '.\Resultats' with fields :
+- 
+
+
 # Main Objects
 
 - Markers : A set of marker from a .c3d file (from 'btkgetmarkers') or from a .txt file for a model (from 'HobisDataParser'). Contains the markers XYZ coordinates in fields sorted by name 'Markers.RFWT, Markers.LFWT, ...'
