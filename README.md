@@ -1,5 +1,7 @@
 # Hobis_Kinematics_Simulation
 
+# Instalation
+
 Download the file 
 Add the path to the downloaded file to your matlab session 
 Change the paths in MainBatch.m to match your location
