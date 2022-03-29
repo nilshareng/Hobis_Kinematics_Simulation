@@ -1,6 +1,6 @@
 # Hobis_Kinematics_Simulation
 
-# Instalation
+# Installation
 
 Download the file 
 Add the path to the downloaded file to your matlab session 
