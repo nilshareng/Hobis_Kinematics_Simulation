@@ -9,10 +9,10 @@ MaxReachL = norm(Markers.LTal1 - Markers.LFem6) + norm(Markers.LFem6 - Markers.L
 MaxReachR = norm(Markers.RTal1 - Markers.RFem6) + norm(Markers.RFem6 - Markers.RHRC) + norm(Markers.RHRC - [0 0 0]);
 MaxReach = (MaxReachL+MaxReachR)/2;
 
-GData = GaitFromPath(InitialGaitPath);
-Period = size(GData.ROGait,1);
-GData.ROGait = [-1*GData.ROGait(:,1),GData.ROGait(:,2) ,GData.ROGait(:,3),-1*GData.ROGait(:,4),GData.ROGait(:,5) ,GData.ROGait(:,6)];
-model.gait = GData.ROGait;
+% GData = GaitFromPath(InitialGaitPath);
+Period = size(KinModelC3D.TA,1);
+% GData.ROGait = [-1*GData.ROGait(:,1),GData.ROGait(:,2) ,GData.ROGait(:,3),-1*GData.ROGait(:,4),GData.ROGait(:,5) ,GData.ROGait(:,6)];
+model.gait = KinModelC3D.Poulaine/1000;
 
 %% Compute full Initial Articular Trajectories corresponding to Initial Gait - Full IK, puis Spline 
 % IK :
@@ -86,12 +86,6 @@ end
 
 %% IK sur plusieurs markers pour le cycle de marche
 
-
-KinModelC3D = Loadc3dKinModel('C:\Users\nhareng\Desktop\CodeCommente\hobis\Ressources\BDD\', ...
-'hassane012','Classement_Pas.xlsx');
-
-KinModelPrints = Loadc3dKinModel('C:\Users\nhareng\Desktop\CodeCommente\hobis\Ressources\BDD\', ...
-'armel012','Classement_Pas.xlsx');
 
 X = FindFootprints(KinModelPrints.Poulaine*10^-3);
 X = [X(2,:) ; X(2,:); X(2,:) ;X(5,:) ; X(5,:) ; X(5,:)];
