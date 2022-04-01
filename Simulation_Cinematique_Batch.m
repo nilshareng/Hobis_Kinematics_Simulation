@@ -47,9 +47,10 @@ definput = {'C:\Users\nhareng\Desktop\CodeCommente\hobis\Ressources\',...
     '1'...
     }; % Last 4 are : toggle auto Ratio / Ratio X - Joints are Min/Max
 
-
-RPath = 'C:\Users\nhareng\Desktop\CodeCommente\hobis\Ressources\AdaptedPresets\';
+% Selection des 
+RPath = 'C:\Users\nhareng\Desktop\CodeCommente\hobis\Ressources\BDD\';
 Ressources = ls(RPath);
+Ressources = Ressources(4:end,:,:);
 
 % Poulaines
 FileSelect1 = [1 1 1 3 ...
@@ -100,6 +101,13 @@ for iii = 11:size(FileSelect1,2)
     close all;
     clc;
     clearvars -except definput flag p RPath Ressources iii X OX OPN FileNames FileSelect1 FileSelect2
+    
+    KinModelC3D = Loadc3dKinModel('C:\Users\nhareng\Desktop\CodeCommente\hobis\Ressources\BDD\', ...
+        'hassane012','Classement_Pas.xlsx');
+    
+    KinModelPrints = Loadc3dKinModel('C:\Users\nhareng\Desktop\CodeCommente\hobis\Ressources\BDD\', ...
+        'armel012','Classement_Pas.xlsx');
+    
     % Poulaine loading according to the FileSelect1 list
     definput{5} = strcat(definput{4},Ressources(FileSelect1(iii),:));
     Formatage_Variables_Batch;
