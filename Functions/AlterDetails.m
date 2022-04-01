@@ -1,6 +1,11 @@
 function [NewDetails] = AlterDetails(Details,PCA,NPCA)
-%UNTITLED7 Summary of this function goes here
-%   Detailed explanation goes here
+% entries : 
+% - Details : Matrice 11 * 
+% 
+
+% outs :
+
+
 
 % For each angle :
 % - for each PC interval :
@@ -35,7 +40,7 @@ for i = 1:PCA(end,1)
         
         Alpha = ORA / NRA;
         
-        % Selection de l'intervalle de détail correspondant
+        % Selection de l'intervalle de dÃ©tail correspondant
         O = fix((kO + OIntT(2)-OIntT(1)) * (S-1));
         N = fix((kN + NIntT(2)-NIntT(1)) * (S-1));
         
@@ -44,7 +49,7 @@ for i = 1:PCA(end,1)
         
         sN = size(NewInt);
         
-        % Attention a ne pas reprendre 2 fois le même point... Exclure une 
+        % Attention a ne pas reprendre 2 fois le mÃªme point... Exclure une 
         % extr de l'int
         Sp1 = spline(OldInt,Details.Symetric(fix(OldInt*(S-1))+1,i)*Alpha,NewInt);
         Sp2 = spline(OldInt,Details.Asymetric(fix(OldInt*(S-1))+1,i)*Alpha,NewInt);
@@ -85,7 +90,7 @@ for i = 1:PCA(end,1)
 %     sN
 %     NewDetails.Symetric(:,i) = TmpS';Z
 %     NewDetails.Asymetric(:,i) = TmpA';
-    % A modifier, gestion dégueu ici
+    % A modifier, gestion dÃ©gueu ici
 %     if max(size(TmpS)) == max(size(NewDetails.Symetric(:,i)))
 %         NewDetails.Symetric(:,i) = TmpS';
 %         NewDetails.Asymetric(:,i) = TmpA';
