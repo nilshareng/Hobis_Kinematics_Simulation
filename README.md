@@ -1,3 +1,12 @@
+# Current Devel objectives :
+
+- Update function documentation and dependencies
+- Organize functions in packages
+- 
+- Develop a live script for a single simulation
+
+
+
 # Hobis_Kinematics_Simulation
 
 # Installation
