@@ -1,26 +1,28 @@
-%%% MàJ 29/03/2022
+%%% Mï¿½J 29/03/2022
 
 %%% Script principal pour le lancer des batchs de tests
-%%% Ce script agit comme la première partie de 'MainBatch' :
-%%% - Déclaration des entrées pour les différentes simulations à lancer
+%%% Ce script agit comme la premiï¿½re partie de 'MainBatch' :
+%%% - Dï¿½claration des entrï¿½es pour les diffï¿½rentes simulations ï¿½ lancer
 %%% - Mise en forme compatible avec le format 'pop up' des variables
 %%% utilisateurs de 'MainBatch'
 %%% - Lancement des simulations dans la boucle finale
-%%% - Sauvegarde des résultats en fin de simulation, puis effacement des
-%%% données superflues avant la simulation suivante.
+%%% - Sauvegarde des rï¿½sultats en fin de simulation, puis effacement des
+%%% donnï¿½es superflues avant la simulation suivante.
 
-%%% Entrées : Contenu de 'definput' - mis par défaut ci-dessous pour lancer
-%%% une vingtaine de simulations sur les données de \Ressources\BDD
-%%% Sorties : Données issues de la boucle d'optimisation, sauvegardées en .mat dans SavePath
+%%% Entrï¿½es : Contenu de 'definput' - mis par dï¿½faut ci-dessous pour lancer
+%%% une vingtaine de simulations sur les donnï¿½es de \Ressources\BDD
+%%% Sorties : DonnÃ©es issues de la boucle d'optimisation, sauvegardï¿½es en .mat dans SavePath
 %%% suivant la variable 'Savepath'
 
 clear all;
 close all;
 clc;    
 
-p = genpath('.');
-addpath(p);
-%addpath("C:\Users\nhareng\Desktop\CodeCommente\hobis");
+% Chemin local
+Path = pwd;
+
+% Ajouter les fichiers et sous fichiers dans le PATH matlab
+addpath(genpath(Path));
 
 flag = struct;
 
@@ -47,10 +49,10 @@ definput = {'C:\Users\nhareng\Desktop\CodeCommente\hobis\Ressources\',...
     '1'...
     }; % Last 4 are : toggle auto Ratio / Ratio X - Joints are Min/Max
 
-% Selection des 
-RPath = 'C:\Users\nhareng\Desktop\CodeCommente\hobis\Ressources\BDD\';
-Ressources = ls(RPath);
-Ressources = Ressources(4:end,:,:);
+% Selection des .c3d Contenus dans Ressources
+RPath = strcat(Path,'\Ressources\BDD\');
+Ressources = string(ls(RPath));
+Ressources = char(Ressources(contains(Ressources,'.c3d')));
 
 % Poulaines
 FileSelect1 = [1 1 1 3 ...
@@ -102,10 +104,10 @@ for iii = 11:size(FileSelect1,2)
     clc;
     clearvars -except definput flag p RPath Ressources iii X OX OPN FileNames FileSelect1 FileSelect2
     
-    KinModelC3D = Loadc3dKinModel('C:\Users\nhareng\Desktop\CodeCommente\hobis\Ressources\BDD\', ...
+    KinModelC3D = Loadc3dKinModel(strcat(Path,'\Ressources\BDD\'), ...
         'hassane012','Classement_Pas.xlsx');
     
-    KinModelPrints = Loadc3dKinModel('C:\Users\nhareng\Desktop\CodeCommente\hobis\Ressources\BDD\', ...
+    KinModelPrints = Loadc3dKinModel(strcat(Path,'\Ressources\BDD\'), ...
         'armel012','Classement_Pas.xlsx');
     
     % Poulaine loading according to the FileSelect1 list
