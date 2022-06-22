@@ -1,0 +1,268 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{graphicx} 
+\usepackage{afterpage}
+\usepackage{tocbibind}
+\usepackage[hidelinks]{hyperref}
+\usepackage[super]{nth}
+\usepackage{anyfontsize}
+\usepackage[numbers]{natbib}
+\usepackage{setspace}
+\usepackage{geometry}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{makecell}
+\usepackage{rotating}
+\usepackage{float}
+\usepackage{mwe}
+\usepackage{listings}
+\usepackage{color} %red, green, blue, yellow, cyan, magenta, black, white
+\definecolor{mygreen}{RGB}{28,172,0} % color values Red, Green, Blue
+\definecolor{mylilas}{RGB}{170,55,241}
+\graphicspath{ {Images/} }
+
+
+\lstset{language=Matlab,%
+    %basicstyle=\color{red},
+    breaklines=true,%
+    morekeywords={matlab2tikz},
+    keywordstyle=\color{blue},%
+    morekeywords=[2]{1}, keywordstyle=[2]{\color{black}},
+    identifierstyle=\color{black},%
+    stringstyle=\color{mylilas},
+    commentstyle=\color{mygreen},%
+    showstringspaces=false,%without this there will be a symbol in the places where there is a space
+    numbers=left,%
+    numberstyle={\tiny \color{black}},% size of the numbers
+    numbersep=9pt, % this defines how far the numbers are from the text
+    emph=[1]{for,end,break},emphstyle=[1]\color{red}, %some words to emphasise
+    %emph=[2]{word1,word2}, emphstyle=[2]{style},    
+}
+
+\title{Transmission de code - Manuel d'utilisation de l'algorithme de simulation cinématique - projet HOminin BIpedalimS (HOBIS)}
+\author{Hareng Nils}
+
+\date{March 2022}
+
+\begin{document}
+
+\maketitle
+
+\section{Liens utiles}
+
+\begin{itemize}
+    \item Simulation cinématique \hyperlink{https://github.com/nilshareng/HoBiS_Kinematics}{Github}. https://github.com/nilshareng/HoBiS\_Kinematics
+    
+    \item Manipulabilité \hyperlink{https://github.com/nilshareng/Manipulability.git}{Github}. https://github.com/nilshareng/Manipulability.git
+
+    \item Simulation dynamique Crocoddyl (travail de Louise) \hyperlink{https://github.com/louise-scherrer/crocoddyl}{Github}. https://github.com/louise-scherrer/crocoddyl
+    
+    \item Simulation dynamique WeBots \hyperlink{https://github.com/louise-scherrer/webots}{Github} https://github.com/louise-scherrer/webots and model parser \hyperlink{https://github.com/louise-scherrer/urdf2webots}{Github} https://github.com/louise-scherrer/urdf2webots
+    
+    \item Modèle de Babouin \hyperlink{https://github.com/nilshareng/HoBiS_Kinematics}{Github}. https://github.com/nilshareng/HoBiS\_Kinematics
+    
+\section{Introduction}
+
+
+\end{itemize}
+
+\subsection{Fonctionnement résumé}
+
+L'algorithme a trois entrées principales dans le cas général, sous la forme de fichiers :
+\begin{itemize}
+    \item Un mouvement de marche, sous la forme d'une trajectoire de cheville, ou d'un fichier d'acquisition de capture de mouvement (.c3d)
+    \item Des empreintes de pas, sous la forme de couples : position de cheville et instant du cycle de marche. Il est possible de fournir une poulaine ou un fichier de capture de mouvement comme base, et d'extraire les empreintes d'un cycle de marche.
+    
+    \item Un modèle de bipède, sous la forme d'un fichier texte contenant des positions de marqueurs. Des fichiers d'exemples sont disponibles sur le github.
+\end{itemize}
+
+
+\newpage
+\section{Fonctionnement théorique}
+
+La simulation cinématique a pour but de proposer une locomotion plausible pour un bipède donné dont seule l'anatomie est connue, à partir de la marche d'un autre bipède.
+%
+Suivant le schéma Figure \ref{fig:Sch1}, les 3 entrées principales de l'algorithme sont : 
+\begin{itemize}
+    \item Un mouvement de marche initial. Soit un mouvement de marche issu de MoCap, ou bien une trajectoire de cheville.
+    \item Un modèle du bipède dont on recherche la locomotion. Ce modèle est basé sur des positions de points anatomiques du sujet dans deux postures, calqués sur des marqueurs de MoCap, sur la masse totale du sujet, et sur des mesures de réparition de masse par segment et d'inertie.\\
+    Le but de cette entrée est de permettre de construire un modèle cinématique du bipède sujet.
+    \item Des empreintes de pas, qui correspondent à des positions de cheville à respecter au cours du cycle de marche.
+\end{itemize}
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.1\textwidth]{Schéma_Fonctionnement.JPG}
+    \caption{Schéma de fonctionnement de l'algorithme}
+    \label{fig:Sch1}
+\end{figure}
+
+Comme illustré ci-dessus, le mouvement de marche initial, le modèle de bipède dont nous cherchons à déterminer le mouvement et les empreintes de pas que nous cherchons à respecter appartiennent en théorie à 3 individus différents.
+%
+En pratique, le modèle et les empreintes de pas peuvent appartenir au même individu. 
+%
+Cela signifie cependant que le mouvement de marche d'entrée de l'algorithme n'est pas adapté au modèle d'entrée en règle générale. Par exemple, si le mouvement d'entrée correspond à un individu de grande taille, et que le modèle d'entrée à un individu de petite taille. Dans ce cas, le modèle d'entrée ne pourra pas atteindre les mouvements d'entrée.\\
+% 
+C'est pour palier à cela qu'une mise à l'échelle est effectuée pour permettre au modèle d'entrée de parcourrir le mouvement requis.\\
+%
+Finalement, le modèle cinématique construit dans l'algorithme à partir des données du 'Modèle' d'entrée est un modèle à 11 degrés de liberté, 3 rotations pelviennes, 3 à chaque hanches et une rotation par genou en suivant l'ISB (cf PDF dans ./Ressources du github, ou './Fonctions/HobisDataParser.m').
+
+
+\section{Fonctionnement pratique}
+
+\subsection{Installation/Préparation}
+
+\begin{itemize}
+    \item Télécharger l'intégralité du \hyperlink{https://github.com/nilshareng/HoBiS_Kinematics}{github}. \hyperlink{https://github.com/nilshareng/HoBiS_Kinematics}{https://github.com/nilshareng/HoBiS\_Kinematic}
+
+    \item Ouvrir Matlab (Le logiciel a été développé sur la version 2018b), et ajouter le dossier et les sous-dossiers dans le chemin local de Matlab (cf Figure \ref{fig:Path}) 
+    
+    \begin{figure}[H]
+    \centering
+    \includegraphics[width=1.1\textwidth]{SetPath.JPG}
+    \caption{Setting the local Matlab Path}
+    \label{fig:Path}
+    \end{figure}
+    
+    \item Lancer le code en utilisant soit 'Simulation\_Cinematique.m' ou 'Simulation\_Cinematique\_Batch.m' 
+
+\end{itemize}
+
+\subsection{Fonctionnement de Simulation\_Cinematique}
+
+Ce script sert à lancer une seule simulation cinématique.
+%
+Au lancer du script une première boite de dialogue apparaît (cf Figure \ref{fig:Popup1})
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.1\textwidth]{Simu_Popup_1.JPG}
+    \caption{}
+    \label{fig:Popup1}
+\end{figure}
+    
+Ces entrées sont les différentes informations nécessaires au fonctionnement de l'algorithme.
+%
+Elles sont respectivement :
+
+\begin{itemize}
+    \item Le chemin absolu du dossier 'Ressources' du GitHub sur votre système
+    \item Le chemin absolu du fichier .txt contenant le modèle à utiliser en posture de description
+    \item Le chemin absolu du fichier .txt contenant le modèle à utiliser en posture de référence
+    \item Cette entrée est dépréciée et est vouée à disparaître - à ignorer
+    \item Le chemin du mouvement de marche initial - voué a être déformé par l'algorithme. Soit un .c3d de Mocap, soit un .txt contenant les points de la poulaine en format XYZ / Droite-Gauche
+    \item La masse totale du sujet correspondant au modèle décrit en posture de description/référence
+    \item Les bornes articulaires basses en rotation pour les 11 degrés de liberté du modèle : (selon l'ISB) XYZ Pelvis, XYZ Hanche droite, Z Genou droit, XYZ Hanche Gauche, Z Genou droit
+    \item Le chemin d'un fichier contenant des empreintes de pas à suivre, sous la forme d'une capture de marche en .c3d, ou d'une poulaine en .txt.
+    \item Le détail des empreintes de pas à suivre (si la case précédente est laissée vide) au format [instant du cycle de marche (en \%) , Position à suivre en XYZ dans le repère du Pelvis]. Jusqu'à 3 empreintes.
+    \item Booléen pour activer la mise à l'échelle automatique de la marche d'entrée. 
+    \item Les facteurs de mise à l'échelle de la marche d'entrée, si le champ précédent est mis à 0.
+    \item Le chemin absolu du dossier de stockage des résultats de l'algorithme.
+\end{itemize}
+
+\noindent Enfin, une deuxième pop-up concluera les entrées par les valeurs d'inerties des différents segments du sujet :
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.1\textwidth]{Simu_Popup_2.JPG}
+    \caption{Seconde Pop-Up - Inertie}
+    \label{fig:Popup2}
+\end{figure}
+%
+%
+
+L'algorithme suit ensuite plusieurs étapes, selon les différents scripts : Pre\_Traitements, puis Boucle\_Optimisation.\\ 
+%
+Le premier script contient successivement : 
+\begin{itemize}
+    \item La création des différents modèles cinématiques (Modèle du bipède et de la Mocap si elle fait partie des entrées).
+    \item La mise à l'échelle du modèle de Mocap (s'il existe)
+    \item Une cinématique inverse - permettant de déterminer des trajectoires articulaires faisant parcourir le mouvement d'entrée au modèle d'entrée.
+    \item L'approximation par splines des trajectoires articulaires. L'information perdue ici par cette approximation est conservée sous le nom de 'Details'.
+    \item La symétrisation Droite/Gauche des trajectoires articulaires.
+\end{itemize}
+
+Le second contient la boucle d'optimisation qui a pour but de faire passer la marche actuelle du modèle dans les empreintes d'entrée, tout en minimisant un coût énergétique.\\
+%
+
+\subsection{Fonctionnement par Simulation\_Cinematique\_Batch}
+
+Ce script est utilisé pour lancer une suite de simulations à la chaîne. 
+%
+Le principe est de sélectionner à la main les entrées désirées des différentes simulations, puis de lancer le script.
+%
+Les résultats générés sont collectés dans une structure spécifique, enregistrée dans le dossier './Resultats'.
+% 
+Il s'agit ensuite d'une simple boucle lançant successivement la simulation sans la popup initiale, avec un script supplémentaire pour gérer le format des variables.
+
+\subsubsection{Codage des entrées}
+
+
+\section{Structures et Fonctions utilisées}
+
+\subsection{Structures}
+
+Markers : A set of marker from a .c3d file (from 'btkgetmarkers') or from a .txt file for a model (from 'HobisDataParser'). Contains the markers XYZ coordinates in fields sorted by name 'Markers.RFWT, Markers.LFWT, ...'\\
+
+Gait : A series of 'Markers' - used for display only. Very heavy and unoptimized.\\
+
+KinModel : Defined using 'Loadc3dKinModel'. Contains data from a .c3d Mocap file, processed to build a Kinematic Model with fields :
+\begin{itemize}
+    \item 'AC' with subfields 'Pelvis, RHip, ...' XYZ coordinates of the articular centres in the Pelvic Coordinate System (PCS) 
+
+    \item 'Markers'
+    
+    \item 'Reperes' the segments coordinate systems
+
+    \item 'ParamPhy' Deprecated - segments lengths
+
+    \item 'Angles' the Articular trajectories of the various joints 
+    
+    \item 'TA' the filtered (low pass) Articular trajectories easier for manips Right side first
+    
+    \item 'TX' the filtered (low pass) markers trajectories. Right then Left
+    
+    \item 'Poulaine' the filterd Ankle trajectory (easier for manips)
+    
+\end{itemize}
+
+Important remark : The 'Markers' structure issued from a .txt model and a .c3d Mocap are not compatible ! 
+More fields (more markers) exist in the text files. When it is necessary to compare .txt model file 'Txt\_Markers' in conjunction with a .c3d Mocap file 'C3D\_Markers' (e.g. for scaling), I use 'AdaptMarkers' function to force the MarkerSet compatibilty \\
+
+
+PolA / PolP : Splined Polynomials. set as a Nx7 matrix. Each line is a 3rd degree polynomial, its designated interval and the degree of freedom it represents. 
+Col 1 is the degree of freedom (1-11) / (1-6)
+Col 2-3 is the interval of the spline (from 0.00 to 1.9)(e.g [0.1 0.5]) . The total length of a degree of freedom's (DOF) interval is 1 (100% of a walk cycle)(e.g [0.1 0.5] and [0.5 1.1] for a DOF with 2 intervals) . 
+Col 4-7 are the coefficients of the 3rd degree polynomial - descending order (e.g $N4*X^3 + N5*X^2 + N6*X + N7$).
+
+\subsection{Fonctions}
+
+Display :
+
+type 'Display' the tab for the available :
+
+DisplayCurves(P) / (P,n) : Takes a curve 'P' (Poulaine, Articular Trajectory, ...) and displays it in a new figure / the nth figure as square subplots. P/TA are matrices
+Display3DCurves(P) / (P,n) : Displays a 3xN matrix as a 3D XYZ continuous curve in figure 'n'
+Display3DPoints(P) : Displays points in a 3D figure
+DisplayMarkers(Markers) : Takes a 'Markers' structure and displays the different points of Markers in 3D
+DisplayModel(Markers) : Display a 3D Model (ony compatible with the .txt markerset)
+DisplayGait(Gait) : Sequential displays of a model, used for movies
+Important in the code :
+
+Loadc3dKinModel(.c3dPath, .xlsxPath) : Prend un fichier .c3d de Mocap et un .xlsx de sélection des frames du cycle de marche, renvoie un
+
+Sampling\_txt(PolA) : Prend des splines de trajectoires angulaires sous la forme de Polynôme et bornes d'évaluation, et retourne les courbes de Poulaine et de Trajectoire Articulaire associées échantillonnées sur 100 points
+
+ECShort : Energetical Cost computation
+
+ArticularCostPC : Articular Cost computation for splines
+
+fcinematique(...) : Kinematic function
+
+calc\_jacobien\_PC\_4D : Jacobian for all the optimization costs : Distance to the FootPrints, energetical cost, articular cost, ...
+
+
+
+\end{document}
