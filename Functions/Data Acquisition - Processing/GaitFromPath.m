@@ -1,10 +1,10 @@
 function [Data] = GaitFromPath(InitialGaitPath)
 % Fonctionnement :
-%
+% 
 %
 
 % Entrée :
-%
+% Chemin d'un fichier de mocap (relatif ou absol
 %
 
 % Sortie :

@@ -1,6 +1,6 @@
-% Deuxieme partie de la branche 'Batch' de la simulation cinématique (cf schema)
+% Deuxieme partie de la branche 'Batch' de la simulation cinématique (cf schéma)
 
-
+% Pour chaque simulation du 'Batch' : 
 % Reformatage des données pour correspondre à la simulation cinématique
 % 'manuelle'
 

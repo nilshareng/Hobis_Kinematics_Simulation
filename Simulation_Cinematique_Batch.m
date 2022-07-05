@@ -54,6 +54,16 @@ RPath = strcat(Path,'\Ressources\BDD\');
 Ressources = string(ls(RPath));
 Ressources = char(Ressources(contains(Ressources,'.c3d')));
 
+%% Partie immonde, à changer soit en selection de fichiers par utilisateur, soit en croisée de tous les fichiers de 'Ressources'
+
+%%% Exemples de sélections de fichiers pour la simulation. 
+%%% Chaque indice sous "Poulaines" correspond à un fichier de mocap dont
+%%% est extrait une trajectoire de cheville d'entrée qui sera déformée par l'algo.
+%%% 
+%%% Chaque indice sous "Empreintes" correspond à un fichier de mocap dont
+%%% est extrait des empreintes soit des coordonnées 3D de points d'intérêt
+%%% de la cheville durant le cycle de marche.
+
 % Poulaines
 FileSelect1 = [1 1 1 3 ...
     12 ...
@@ -80,7 +90,9 @@ FileSelect2 = [1 3 12 1 ...
     45 ...
     ] + 2;
 
-% 
+% Les noms des différents fichiers de résultats - Pour la sauvegarde post
+% simulation 
+
 FileNames = {...
     'P_antho012_E_antho012', 'P_antho012_E_antho028' , 'P_antho012_E_armel012' , 'P_antho028_E_antho012', ...
     'P_armel012_E_antho012',...
@@ -94,15 +106,23 @@ FileNames = {...
     'P_seb012_E_richard012', ...
     };
 
+%%
+
 for iii = 11:size(FileSelect1,2)
 %     % Loading the Footprints according to the FileSelect2 list
 %     load(strcat(RPath, Ressources(FileSelect2(iii),:)));
 %     
 %     OPN = PN;
-
+    
+    % RaZ des variables, pourrait être évité en appellant une fonction pour
+    % la simulation ... 
+    
     close all;
     clc;
     clearvars -except definput flag p Path RPath Ressources iii X OX OPN FileNames FileSelect1 FileSelect2
+    
+    % Fix temporaire : Les fichiers sélectionnés sont en dur ici, doivent
+    % passer en dynamique selon la sélection au dessus (FileSelect)
     
     KinModelC3D = Loadc3dKinModel(strcat(Path,'\Ressources\BDD\'), ...
         'hassane012','Classement_Pas.xlsx');
@@ -112,7 +132,11 @@ for iii = 11:size(FileSelect1,2)
     
     % Poulaine loading according to the FileSelect1 list
     definput{5} = strcat(definput{4},Ressources(FileSelect1(iii),:));
+    
+    % Script de simulation ci-dessous
     Formatage_Variables_Batch;
+    
+    % Sauvegarde des résultats
     save(strcat(SavePath, '\', ...
     FileNames{iii},num2str(MaxLoop),'-PasModifs-', num2str(PasModifs),'-PasDelta-', num2str(PasDelta), ...
     '-NoFMS--50-NoSecCost','.mat'),'Results');
