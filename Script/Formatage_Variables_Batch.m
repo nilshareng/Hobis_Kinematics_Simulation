@@ -75,7 +75,6 @@ Sequence.RKnee = 'z';
 
 [PosC,Markers,Reperes] = fcinematique([0 0 0 0 0 0 0 0 0 0 0], Sequence, Rmarkers, RReperes);
 
-Pre_Traitements;
-Boucle_Optimisation;
+
 
 
