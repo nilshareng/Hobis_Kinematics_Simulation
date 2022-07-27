@@ -87,7 +87,7 @@ for iii = 1:size(PoulaineFiles,2)
         close all;
         clc;
         clearvars -except definput flag p Path RPath Ressources iii X OX ...
-            OPN FileNames FileSelect1 FileSelect2
+            OPN FileNames PoulaineFiles FootprintsFiles
         
         % Fix temporaire : Les fichiers sélectionnés sont en dur ici, doivent
         % passer en dynamique selon la sélection au dessus (FileSelect)
@@ -98,14 +98,16 @@ for iii = 1:size(PoulaineFiles,2)
         KinModelPrints = Loadc3dKinModel(strcat(Path,'\Ressources\BDD\'), ...
             FootprintsFiles{jjj}(1:end-4),'Classement_Pas.xlsx');
         
-        % Poulaine loading according to the FileSelect1 list
-        definput{5} = strcat(definput{4},Ressources(FileSelect1(iii),:));
+        % Poulaine the PoulaineFiles list
+        definput{5} = strcat(definput{4},KinModelC3D.Poulaine);
         
         % Script de simulation ci-dessous
         Formatage_Variables_Batch;
         
         Pre_Traitements;
         Boucle_Optimisation;
+        PostOptimisation;
+
         
         % Sauvegarde des résultats
         save(strcat(Path, '\Resultats\', ...
