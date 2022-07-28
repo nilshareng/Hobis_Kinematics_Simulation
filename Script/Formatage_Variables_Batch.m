@@ -75,6 +75,8 @@ Sequence.RKnee = 'z';
 
 [PosC,Markers,Reperes] = fcinematique([0 0 0 0 0 0 0 0 0 0 0], Sequence, Rmarkers, RReperes);
 
-
+if flag.logs 
+    disp('Formatage_Variables_Batch check'); 
+end
 
 

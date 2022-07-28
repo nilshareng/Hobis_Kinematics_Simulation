@@ -90,22 +90,16 @@ end
 X = FindFootprints(KinModelPrints.Poulaine*10^-3);
 X = [X(2,:) ; X(2,:); X(2,:) ;X(5,:) ; X(5,:) ; X(5,:)];
 
-% KinModelInput = struct;
-% KinModelInput.Markers = NRMarkers;
-% KinModelInput.Reperes = RReperes;
-% KinModelInput.ParamPhy = NRParam;
-
-% ScaledKinModelInput = ScalingKinModel(KinModelC3D,KinModelInput);
-
-% KinModelInput.
-
-% [RReperes, RSeq, NRmarkers, NRParam]
-
 tmpMarkers = AdaptMarkers(Markers,KinModelC3D.Markers);
 
 [c] = KinforMinAllMarkers(zeros(1,11),Sequence,Markers,RReperes,tmpMarkers);
 
 % IK fminsearch
+
+if flag.logs
+    disp('Beginning IK using fminsearch')
+end
+
 if 1
     Angles = AnglesDesc2Ref;
     NAngles = zeros(11,1);
@@ -156,6 +150,10 @@ if 1
 %         DisplayMarkers(Cmarkers,9);
     end
 end
+if flag.logs 
+    disp('End of IK') 
+end
+
 
 freq=5;
 [b,a] = butter(2 , freq/(0.5*Period) , 'low');
@@ -300,7 +298,9 @@ NewCurve = SplinedAngles;
 
 
 
-
+if flag.logs
+    disp('End of Pre_Traitements') ;
+end
 
 
 

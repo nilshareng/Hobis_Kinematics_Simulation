@@ -32,7 +32,6 @@ flag.dyn = 0;
 flag.prints =0;
 
 %% Input part
-%Antho012 - Antho056
 
 definput = {strcat(Path,'\Ressources\'),...
     strcat(Path,'\Ressources\description.txt'),...
@@ -68,70 +67,61 @@ Ressources = char(Ressources(contains(Ressources,'.c3d')));
 
 disp("Please select the input ankle trajectory files");
 PoulaineFiles = uigetfile({'*.c3d';'*.txt'},'Select a file',strcat(Path,'\Ressources\BDD\'));
-
-% FileSelect1 = [1 1 1 3 ...
-%     12 ...
-%     12 12 12 14 ...
-%     23 ...
-%     23 23 23 25 ...
-%     34 ...
-%     34 34 34 36 ...
-%     45 ...
-%     45 45 45 47 ...
-%     56 ...
-%     ] + 2;
+if size(PoulaineFiles,1)==1
+    PoulaineFiles = {PoulaineFiles};
+end
 
 %Empreintes
 disp("Please select the input footprints files");
 FootprintsFiles = uigetfile({'*.c3d';'*.txt'},'Select a file',strcat(Path,'\Ressources\BDD\'));
-% FileSelect2 = [1 3 12 1 ... 
-%     1 ...
-%     12 14 23 12 ...
-%     12 ... 
-%     23 25 34 23 ...
-%     23 ...
-%     34 36 45 34 ...
-%     34 ...
-%     45 47 56 45 ...
-%     45 ...
-%     ] + 2;
+if size(FootprintsFiles,1)==1
+    FootprintsFiles = {FootprintsFiles};
+end
 
 %%
+for iii = 1:size(PoulaineFiles,1)
+    for jjj = 1:size(FootprintsFiles,1)
+        %     % Loading the Footprints according to the FileSelect2 list
+        %     load(strcat(RPath, Ressources(FileSelect2(iii),:)));
+        %
+        %     OPN = PN;
+        
+        % RaZ des variables, pourrait être évité en appellant une fonction pour
+        % la simulation ...
+        
+        close all;
+        clc;
+        clearvars -except definput flag p Path RPath Ressources iii jjj X OX ...
+            OPN FileNames PoulaineFiles FootprintsFiles
+        
+        % Fix temporaire : Les fichiers sélectionnés sont en dur ici, doivent
+        % passer en dynamique selon la sélection au dessus (FileSelect)
+        
+        KinModelC3D = Loadc3dKinModel(strcat(Path,'\Ressources\BDD\'), ...
+            PoulaineFiles{iii}(1:end-4),'Classement_Pas.xlsx');
+        
+        KinModelPrints = Loadc3dKinModel(strcat(Path,'\Ressources\BDD\'), ...
+            FootprintsFiles{jjj}(1:end-4),'Classement_Pas.xlsx');
+        
+        % Poulaine the PoulaineFiles list
+        definput{5} = strcat(definput{4},KinModelC3D.Poulaine);
+        
+        % Script de simulation ci-dessous
+        Formatage_Variables_Batch;
+        
+        Pre_Traitements;
+        
+        Boucle_Optimisation;
+        
+        PostOptimisation;
 
-for iii = 11:size(FileSelect1,2)
-%     % Loading the Footprints according to the FileSelect2 list
-%     load(strcat(RPath, Ressources(FileSelect2(iii),:)));
-%     
-%     OPN = PN;
-    
-    % RaZ des variables, pourrait être évité en appellant une fonction pour
-    % la simulation ... 
-    
-    close all;
-    clc;
-    clearvars -except definput flag p Path RPath Ressources iii X OX ...
-        OPN FileNames FileSelect1 FileSelect2
-    
-    % Fix temporaire : Les fichiers sélectionnés sont en dur ici, doivent
-    % passer en dynamique selon la sélection au dessus (FileSelect)
-    
-    KinModelC3D = Loadc3dKinModel(strcat(Path,'\Ressources\BDD\'), ...
-         PoulaineFiles{}(1:end-4),'Classement_Pas.xlsx');
-    
-    KinModelPrints = Loadc3dKinModel(strcat(Path,'\Ressources\BDD\'), ...
-        'armel012','Classement_Pas.xlsx');
-    
-    % Poulaine loading according to the FileSelect1 list
-    definput{5} = strcat(definput{4},Ressources(FileSelect1(iii),:));
-    
-    % Script de simulation ci-dessous
-    Formatage_Variables_Batch;
-    
-    % Sauvegarde des résultats
-    save(strcat(SavePath, '\', ...
-    FileNames{iii},num2str(MaxLoop),'-PasModifs-', num2str(PasModifs),...
-    '-PasDelta-', num2str(PasDelta), ...
-    '-NoFMS--50-NoSecCost','.mat'),'Results');
+        
+        % Sauvegarde des résultats
+        save(strcat(Path, '\Resultats\', ...
+            num2str(MaxLoop),'-PasModifs-', num2str(PasModifs),...
+            '-PasDelta-', num2str(PasDelta), ...
+            '-NoFMS--50-NoSecCost','.mat'),'Results');
+    end
 end
 
 Results;

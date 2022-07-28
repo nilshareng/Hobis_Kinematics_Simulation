@@ -30,6 +30,7 @@ flag.c3d = 0;
 flag.txt = 0;
 flag.dyn = 0;
 flag.prints =0;
+flag.logs = 1;
 
 %% Input part
 
@@ -67,15 +68,20 @@ Ressources = char(Ressources(contains(Ressources,'.c3d')));
 
 disp("Please select the input ankle trajectory files");
 PoulaineFiles = uigetfile({'*.c3d';'*.txt'},'Select a file',strcat(Path,'\Ressources\BDD\'));
+if size(PoulaineFiles,1)==1
+    PoulaineFiles = {PoulaineFiles};
+end
 
 %Empreintes
 disp("Please select the input footprints files");
 FootprintsFiles = uigetfile({'*.c3d';'*.txt'},'Select a file',strcat(Path,'\Ressources\BDD\'));
-
+if size(FootprintsFiles,1)==1
+    FootprintsFiles = {FootprintsFiles};
+end
 
 %%
-for iii = 1:size(PoulaineFiles,2)
-    for jjj = 1:size(FootprintsFiles,2)
+for iii = 1:size(PoulaineFiles,1)
+    for jjj = 1:size(FootprintsFiles,1)
         %     % Loading the Footprints according to the FileSelect2 list
         %     load(strcat(RPath, Ressources(FileSelect2(iii),:)));
         %
@@ -86,7 +92,7 @@ for iii = 1:size(PoulaineFiles,2)
         
         close all;
         clc;
-        clearvars -except definput flag p Path RPath Ressources iii X OX ...
+        clearvars -except definput flag p Path RPath Ressources iii jjj X OX ...
             OPN FileNames PoulaineFiles FootprintsFiles
         
         % Fix temporaire : Les fichiers sélectionnés sont en dur ici, doivent
@@ -99,13 +105,15 @@ for iii = 1:size(PoulaineFiles,2)
             FootprintsFiles{jjj}(1:end-4),'Classement_Pas.xlsx');
         
         % Poulaine the PoulaineFiles list
-        definput{5} = strcat(definput{4},KinModelC3D.Poulaine);
-        
+%         definput{5} = strcat(definput{4},KinModelC3D.Poulaine);
+        definput{5}= {};
         % Script de simulation ci-dessous
         Formatage_Variables_Batch;
         
         Pre_Traitements;
+        
         Boucle_Optimisation;
+        
         PostOptimisation;
 
         
