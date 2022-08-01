@@ -2,8 +2,12 @@
 
 - Update function documentation and dependencies
 - Organize functions in packages
-- 
 - Develop a live script for a single simulation
+
+# Recent developpments :
+
+- Refactoring Batch Simulation
+- Made Inverse Kinematics into a function, developping UI for easier debugging (probable error source)
 
 
 
