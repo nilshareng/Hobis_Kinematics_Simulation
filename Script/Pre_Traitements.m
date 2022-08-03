@@ -90,22 +90,16 @@ end
 X = FindFootprints(KinModelPrints.Poulaine*10^-3);
 X = [X(2,:) ; X(2,:); X(2,:) ;X(5,:) ; X(5,:) ; X(5,:)];
 
-% KinModelInput = struct;
-% KinModelInput.Markers = NRMarkers;
-% KinModelInput.Reperes = RReperes;
-% KinModelInput.ParamPhy = NRParam;
-
-% ScaledKinModelInput = ScalingKinModel(KinModelC3D,KinModelInput);
-
-% KinModelInput.
-
-% [RReperes, RSeq, NRmarkers, NRParam]
-
 tmpMarkers = AdaptMarkers(Markers,KinModelC3D.Markers);
 
 [c] = KinforMinAllMarkers(zeros(1,11),Sequence,Markers,RReperes,tmpMarkers);
 
 % IK fminsearch
+
+if flag.logs
+    disp('Beginning IK using fminsearch')
+end
+
 if 1
     Angles = AnglesDesc2Ref;
     NAngles = zeros(11,1);
@@ -156,6 +150,10 @@ if 1
 %         DisplayMarkers(Cmarkers,9);
     end
 end
+if flag.logs 
+    disp('End of IK') 
+end
+
 
 freq=5;
 [b,a] = butter(2 , freq/(0.5*Period) , 'low');
@@ -174,206 +172,6 @@ end
 DisplayGait(GaitMarkers,8);
 error = CurrentPos*1000 - [Rmarkers.LTal1' ; Rmarkers.RTal1'];%/1000
 norm(error);
- %% Second IK - Using J
-% 
-% 
-% tmpMarkers = AdaptMarkers(Markers,KinModelC3D.Markers);
-% 
-% [c] = KinforMinAllMarkers(zeros(1,11),Sequence,Markers,RReperes,tmpMarkers);
-% 
-% 
-% NAngles = zeros(11,1);
-% CellTargetMarkers = struct2cell(KinModelC3D.Markers);
-% 
-% NewPoul = [];
-% GaitMarkers = [];
-% NewAngles = [];
-% s = 10;
-% 
-% [CurrentPos, Cmarkers, Creperes] = fcinematique(zeros(1,11),Sequence,Markers,RReperes);
-% CurrentMarkerPos = AdaptMarkers(Cmarkers,KinModelC3D.Markers);
-% PosC = struct2cell(CurrentMarkerPos);
-% 
-% DeltaX = {};
-% 
-% 
-% for i = 1:max(size(CellTargetMarkers{1}))
-%     tmp = AnglesDesc2Ref;
-%     
-%     i
-%     
-%     CycleTargetMarkers = {};
-%     for j = 1:max(size(fieldnames(KinModelC3D.Markers)))
-%         CycleTargetMarkers{j} = CellTargetMarkers{j}(i,:);
-%     end
-%     CycleTargetMarkers = cell2struct(CycleTargetMarkers',fieldnames(KinModelC3D.Markers));
-%     GlobalTarget = struct2cell(CycleTargetMarkers);
-%     
-%     for j = 1:s
-%         DeltaX = [];
-%         for k = 1:max(size(PosC))
-%             DeltaX = [DeltaX ; ((-GlobalTarget{k}' + PosC{k}')/(s+1-j))];
-%         end
-%         
-%         J = JcinematiqueMarkers(tmp,Sequence,Markers,RReperes,KinModelC3D.Markers);
-%         Jp = pinv(J);
-%         deltatheta =  Jp * DeltaX*10^-3; 
-% %         proj = Jp*J;
-%         tmp = mod(tmp + deltatheta,2*pi);
-%         
-%     end
-%     
-%     
-%     
-%     [CurrentPos, Cmarkers, Creperes] = fcinematique(tmp,Sequence,Markers,RReperes);    
-%     CurrentMarkerPos = AdaptMarkers(Cmarkers,KinModelC3D.Markers);
-%     
-%     PosC = struct2cell(CurrentMarkerPos);
-%     
-%     NewAngles = [NewAngles ; tmp'];
-% 
-%     GaitMarkers = [GaitMarkers,Cmarkers];
-%     NewPoul = [NewPoul ; CurrentPos'];
-% end
-% 
-% 
-% 
-% %%
-% 
-% 
-% % Ik J
-% NewPoul=[];
-% 
-% 
-% 
-% % % % % % % NewPoul = [];
-% % % % % % % GaitMarkers = [];
-% % % % % % % NewAngles = [];
-% % % % % % % s = 20;
-% % % % % % % 
-% % % % % % % TargetFields = fieldnames(KinModelC3D.Markers);
-% % % % % % % Period = max(size(CellTargetMarkers{1}));
-% % % % % % % Angles = AnglesDesc2Ref;
-% % % % % % % tmp = AnglesDesc2Ref;
-% % % % % % % NAngles = zeros(11,1);
-% % % % % % % CellTargetMarkers = struct2cell(KinModelC3D.Markers);
-% % % % % % % 
-% % % % % % % % Setting the current Markers positions - Reference posture
-% % % % % % % [~ , CurrentPosMarkers , ~] = fcinematique(AnglesDesc2Ref,Sequence,Markers,RReperes);
-% % % % % % % 
-% % % % % % % CurrentPosMarkers = AdaptMarkers(CurrentPosMarkers,KinModelC3D.Markers);
-% % % % % % % CurrentPos = MarkersStruct2Vector(CurrentPosMarkers);
-% % % % % % % 
-% % % % % % % for i = 1:20%max(size(CellTargetMarkers{1}))
-% % % % % % %         CycleTargetMarkersCell = {};
-% % % % % % %         for j = 1:max(size(fieldnames(KinModelC3D.Markers)))
-% % % % % % %             CycleTargetMarkersCell{j} = CellTargetMarkers{j}(i,:);
-% % % % % % %         end
-% % % % % % %         
-% % % % % % %         CycleTargetMarkers = MarkersStruct2Vector(cell2struct(CycleTargetMarkersCell',...
-% % % % % % %             fieldnames(KinModelC3D.Markers)));
-% % % % % % % %         tmp = AnglesDesc2Ref;
-% % % % % % %         for j = 1:s
-% % % % % % %             CycleLocalTargetMarkers =  CurrentPos + ((CycleTargetMarkers - CurrentPos)/(s+1-j));
-% % % % % % %             
-% % % % % % %             deltaX = (CurrentPos - CycleLocalTargetMarkers)/1000;
-% % % % % % %             J = JcinematiqueMarkers(tmp,Sequence,Markers,Reperes,KinModelC3D.Markers);
-% % % % % % % %             J(1:12,1:3) = zeros(12,3);
-% % % % % % %             Jp = pinv(J);
-% % % % % % %             deltatheta =  Jp * deltaX;
-% % % % % % %             
-% % % % % % %             tmp = tmp + deltatheta;
-% % % % % % %             
-% % % % % % %             [CP, CurrentPosMarkers] = fcinematique(tmp,Sequence,Markers,RReperes);
-% % % % % % %             CurrentPos = MarkersStruct2Vector(CurrentPosMarkers,KinModelC3D.Markers);
-% % % % % % %         end
-% % % % % % %         NewAngles = [NewAngles ; tmp'];
-% % % % % % % %         [CP, CurrentPosMarkers, Creperes] = fcinematique(tmp,Sequence,Markers,RReperes);
-% % % % % % %         NewPoul = [NewPoul ; CP'];
-% % % % % % %         GaitMarkers = [GaitMarkers,CurrentPosMarkers];
-% % % % % % % end
-% % % % % % % 
-% % % % % % % DisplayCurves(NewPoul,1);
-% % % % % % % DisplayCurves(NewAngles,2);
-% % % % % % % DisplayCurves(KinModelC3D.Poulaine/1000,1);
-% % % % % % % DisplayCurves(KinModelC3D.TA/1000,2);
-
-%     for j = 1:s
-% 
-%         localtarget = CurrentPos + ((globaltarget - CurrentPos)/(s+1-j));
-%         deltaX = CurrentPos - localtarget;
-%         J = Jcinematique(TmpAngles,Sequence,Markers,RReperes);
-%         Jp = pinv(J);
-%         deltatheta =  Jp * deltaX; 
-% %         proj = Jp*J;
-%         tmp = tmp + deltatheta';
-% %         deltatheta2 = ones(1,11)*0.001;
-% %         delta2 = fminsearch(@(deltatheta2) ArticularCost(tmp,deltatheta2,proj,model.jointRangesMin, ...
-% %             model.jointRangesMax),deltatheta2);
-% %         tmp = tmp + (proj*delta2')';
-%          
-%         
-% %         CurrentMarkers = cell2struct(struct2cell(CurrentMarkers),TargetFields);
-%         
-%     end
-%     NewAngles = [NewAngles ; tmp];
-%     [CurrentPos, Cmarkers, Creperes] = fcinematique(tmp,Sequence,Markers,RReperes);
-%     
-% %     Cmarkers.CRTarget = globaltarget(1:3)'*1000;
-% %     Cmarkers.CLTarget = globaltarget(4:6)'*1000;
-% %     Cmarkers.RPoul = model.gait(:,1:3)*1000;
-% %     Cmarkers.LPoul = model.gait(:,4:6)*1000;
-%     
-%     
-%     NewPoul = [NewPoul ; CurrentPos'];
-% 
-% end
-
-% 
-
-
-%%
-% model.gait = model.gait  * PoulaineRatio;
-% NewPoul=[];
-% 
-% GaitMarkers = [];
-% s = 10;
-% %%% "IK" Disgusting fminseach instead, cause it (kinda) works 
-% for i =1:size(model.gait,1)
-%     globaltarget = [model.gait(i,1:3) , model.gait(i,4:6)]';
-% %     tmp = fminsearch(@(Angles) KinforMin(Angles,Sequence,globaltarget,Markers,Reperes),TmpAngles,options);
-%     tmp = TmpAngles;
-%     for j = 1:s
-% %         localtarget = CurrentPos + ((globaltarget - CurrentPos)/norm(globaltarget - CurrentPos)) /10;
-%         localtarget = CurrentPos + ((globaltarget - CurrentPos)/(s+1-j));
-%         deltaX = CurrentPos - localtarget;
-%         J = Jcinematique(TmpAngles,Sequence,Markers,RReperes);
-%         Jp = pinv(J);
-%         deltatheta =  Jp * deltaX; 
-%         proj = Jp*J;
-%         tmp = tmp + deltatheta';
-%         deltatheta2 = ones(1,11)*0.001;
-%         delta2 = fminsearch(@(deltatheta2) ArticularCost(tmp,deltatheta2,proj,model.jointRangesMin, ...
-%             model.jointRangesMax),deltatheta2);
-%         tmp = tmp + (proj*delta2')';
-%         CurrentPos = fcinematique(tmp,Sequence,Markers,RReperes);
-%     end
-%     NewAngles = [NewAngles ; tmp];
-%     [CurrentPos, Cmarkers, Creperes] = fcinematique(tmp,Sequence,Markers,RReperes);
-%     Cmarkers.CRTarget = globaltarget(1:3)'*1000;
-%     Cmarkers.CLTarget = globaltarget(4:6)'*1000;
-%     Cmarkers.RPoul = model.gait(:,1:3)*1000;
-%     Cmarkers.LPoul = model.gait(:,4:6)*1000;
-%     
-%     GaitMarkers = [GaitMarkers,Cmarkers];
-%     
-%     NewPoul = [NewPoul ; CurrentPos'];
-% %     DisplayMarkers(Cmarkers,1,Creperes);
-% %     pause(1/60); 
-% 
-% end
-%%
-
 
 for i =1:size(model.gait,1)
     GaitMarkers(i).LOPoul = NewPoul(:,1:3)*1000;
@@ -424,125 +222,6 @@ NewPoulF = NewPoulF(size(NewPoul,1)+1:2*size(NewPoul,1),:);
 
 NewAnglesF = NewAnglesF(S+1:2*S,:);
 
-% for i = 1:size(GaitMarkers.RFWT,1)
-%     
-%     DisplayMarkers(,2)
-% end
-%%%
-%%
-% %%
-% for i = 1:1/steplength
-% % c=0;
-% % while norm(model.gait(1,:)' - CurrentPos)> thresh
-% %     c=c+1
-%     Target = (model.gait(1,:)' - CurrentPos);
-%     Target = CurrentPos + (Target*steplength / norm(Target))*i;
-%     TmpAngles = fminsearch(@(Angles) KinforMin(Angles,Target,DParam,DReperes),TmpAngles,options);
-% %     if KinforMin(TmpAngles,Target,DParam,DReperes)>thresh
-% %         Target = (CurrentPos + model.gait(1,:)')* i/50;
-% %         TmpAngles = fminsearch(@(Angles) KinforMin(Angles,Target,DParam,DReperes),TmpAngles,options);
-% %     end
-%     CurrentPos = fcineshort(TmpAngles,DParam,DReperes);
-%     mem = [mem, CurrentPos];
-%     if size(mem,2)>2 && norm(mem(:,end-1)-mem(:,end))<thresh/10
-%         warning('shit happened here')
-%         break;
-%     end
-%     error = [error, CurrentPos - Target];
-%     globalerror = [globalerror , (model.gait(1,:)' - CurrentPos)];
-%     norm(error(:,end))
-% end
-% AnglesRef2Ini1 = TmpAngles;
-% %%%
-% % Target = model.gait(1,:)';
-% % AnglesRef2Ini2 = fminsearch(@(Angles) KinforMin(Angles,Target,DParam,DReperes),AnglesRef2Ini1,options);
-% % CurrentPos = fcineshort(AnglesRef2Ini2,DParam,DReperes);
-% % CurrentPos - Target
-% 
-% 
-% %%%
-% test = zeros(11,1);
-% option=[1 200*10 0.03 2 0.5 0.002];
-% AnglesRef2Ini = MDS('KinforMin',test,AnglesDesc2Ref,Target,DParam,DReperes)
-% fcineshort(AnglesRef2Ini,DParam,DReperes) - model.gait(1,:)'
-% 
-% 
-% % IK sur le cycle de marche visé
-% 
-% x0 = AnglesDesc2Ref;
-% NewAngles = IK(model.Ngait,thresh,NAngles,RParam,RReperes,x0)';
-% figure;
-% plot(NewAngles);
-% 
-% NewPoul= [];
-% for i = 1:size(NewAngles,1)
-%     NewPoul =[NewPoul, fcineshort(NewAngles(i,:), NRParam, RReperes)];
-% end
-% NewPoul = NewPoul';
-% figure;
-% for i=1:6
-%     subplot(2,3,i)
-%     hold on;
-%     plot([NewPoul(:,i);NewPoul(1,i)]);
-%     plot(model.gait(:,i));
-%     plot(model.Ngait(:,i));
-% end
-% 
-% %
-% 
-% for i = 1:(max(size(model.gait)))
-%     if i == (max(size(model.gait)))
-%         TargetX = model.gait(2,:)';
-%     else
-%         TargetX = model.gait(i+1,:)';
-%     end
-% %     deltaX = (TargetX - PosC);
-% %     delta = norm(deltaX)*d;
-%     
-%     deltaX = (TargetX - PosC);
-%     tmp = Angles(i,:);
-%     figure;
-%     hold on;
-%     while (norm(deltaX) > thresh)
-%         deltaX = (TargetX - PosC);
-%         delta = (deltaX/norm(deltaX)) * d;
-%         J = JacShort(NAngles, NRParam, RReperes);
-%         NAngles = pinv(J)*delta;
-%         PosC = fcineshort(NAngles, NRParam, RReperes);
-%         tmp = tmp + NAngles';
-%         plot(norm(deltaX));
-%     end
-%     i
-% %     for j = 1:10
-% %         deltaX = (TargetX - PosC);
-% %         deltax = deltaX/delta*d*j;%(1/100-j);
-% %         J = JacShort(NAngles, NRParam, RReperes);
-% %         NAngles = pinv(J) * deltax;
-% %         % TODO passer en fcineH3
-% %         %     PosC = fcine_numerique_H2(NAngles,Param(:,1)',Param(:,2)',Param(:,3)',Param(:,4)',Param(:,5)',Param(:,6)', R_monde_local,R_Pelvis_monde_local, R_LFem_ref_local, R_LTib_ref_local, R_RFem_ref_local, R_RTib_ref_local);
-% %         PosC = fcineshort(NAngles, NRParam, RReperes);
-% %         
-% %         Angles((i-1)*10+j,:) = NAngles';
-% %     end
-%     Angles(i+1,:) = tmp';
-% end
-% figure;
-% plot(Angles)
-% Angles = Angles(2:end-1,:);
-% rate = 60;
-% 
-% angles = [];
-% for i =10:10:600
-%     angles =[angles ;Angles(i,:)]; 
-% end
-% Angles = angles;
-% figure;
-% plot(Angles);
-% NewPoul = [];
-% 
-% for i = 1:size(Angles,1)
-%     NewPoul =[NewPoul, fcineshort(Angles(i,:), NRParam, RReperes)];
-% end
 %%
 close all;
 MarkersReference = Markers;
@@ -606,49 +285,8 @@ end
 
 [tmpP2, tmpTA2] = Sampling_txt(NPolA,Period,Sequence,Markers,Reperes);
 
-% figure(6);
-% hold on;
-% % DisplayCurves(tmpTA2,6);
-% % DisplayCurves(SplinedAngles,6);
-% 
-% figure(2);
-% hold on;
-% % DisplayCurves(tmpP2,2);
-% % DisplayCurves(ComputedPoulaine,2);
-% for i = 1   :3
-%     subplot(3,3,X(i,1));
-%     hold on;
-%     plot(X(i,2)*(size(PN,1)-2)+1,X(i,X(i,1)+2),'kx');
-% end
-% for i = 4:6
-%     subplot(3,3,X(i,1));
-%     hold on;
-%     plot(X(i,2)*(size(PN,1)-2)+1,X(i,X(i,1)-1),'kx');
-% end
-
-
-
-
-
-
-
 
 %% Affichages comparatif
-
-% if flag.prints
-%        figure;
-%        hold on;
-%        title('Comparison loaded poulaine vs Splined poulaine');
-%        for i = 1:6
-%            subplot(2,3,i)
-%            hold on;
-%            plot(InitialGait(:,i));
-%            plot(SplinedPoulaine(:,i));
-%            plot(ComputedPoulaine(:,i));
-%            plot(SplinedComputedPoulaine(:,i));
-%        end
-% end
-
 
 % Setting up variables to plug into the PreLoop / Loop
 PN = SplinedComputedPoulaine;
@@ -657,16 +295,12 @@ GT = model.gait;
 Pol = PolA;
 mid = fix(max(size(SplinedComputedPoulaine,1))/2);
 NewCurve = SplinedAngles;
-% for i = 1:max(size(SplinedAngles),1)
-%     PCA = [PolA(i,1:2), EvalSpline(PolA(i,:),PolA(i,2)) ]; % PC : N X T : idNumber, Xvalue, Time value
-% end
-% for i = 1:max(size(SplinedComputedPoulaine))
-%     PCP = [PolP(i,1:2), ]; % PC : N X T : idNumber, Xvalue, Time value
-% end
-% 
 
 
 
+if flag.logs
+    disp('End of Pre_Traitements') ;
+end
 
 
 

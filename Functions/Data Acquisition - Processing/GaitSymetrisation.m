@@ -1,22 +1,17 @@
 function SymCurves = GaitSymetrisation(Curves)
 % Fonctionnement :
-%
-%
-
-% Entrée :
-%
-%
-
-% Sortie :
-%
-%
-
-
-
-
-% Symmetricalisation of gait curves, for ankles traj and angular traj
+% Symmetrisation of gait curves, for ankles traj and angular traj
 % Ankle traj : 2*3 DoF 
 % Angular Traj : 11 DoF, 3 + 2*4 
+
+% Entrée :
+% 'Curves' : N*3 or N*6 array of XYZ right ankle coordinates 
+% Exceptions : - cas N*7 --> forme polynomiale de trajectoires splinées
+%              - cas N*11 --> trajectoires articulaires 
+% Sortie :
+% 'SymCurves' : N*6 array of XYZ - XYZ right then left ankle coordinates 
+% Exceptions : - entrée N*7 --> sortie N*7 forme polynomiale de trajectoires splinées
+%              - entrée N*11 --> sortie N*11 trajectoires articulaires 
 SymCurves = [];
 switch size(Curves,2)
     
@@ -52,16 +47,9 @@ switch size(Curves,2)
             SymCurves(Curves(:,1)==8,2:3) = Curves(Curves(:,1)==4,2:3)+0.5;
             SymCurves(Curves(:,1)==9,2:3) = Curves(Curves(:,1)==5,2:3)+0.5;
             SymCurves(Curves(:,1)==10,2:3) = Curves(Curves(:,1)==6,2:3)+0.5;
-%             SymCurves(Curves(:,1)==11,2:3) = Curves(Curves(:,1)==7,2:3)+0.5;
-            
-%             SymCurves(Curves(:,1)==8,4:7) = -1*Curves(Curves(:,1)==4,4:7);
-%             SymCurves(Curves(:,1)==9,4:7) = -1*Curves(Curves(:,1)==5,4:7);
             SymCurves(Curves(:,1)==8,4:7) = -1*Curves(Curves(:,1)==4,4:7);
             SymCurves(Curves(:,1)==9,4:7) = -1*Curves(Curves(:,1)==5,4:7);
-%             SymCurves(Curves(:,1)==10,4:7) = -1*Curves(Curves(:,1)==6,4:7);
-%             SymCurves(Curves(:,1)==11,4:7) = -1*Curves(Curves(:,1)==7,4:7);
             SymCurves(Curves(:,1)==10,4:7) = Curves(Curves(:,1)==10,4:7);
-%             SymCurves(Curves(:,1)==11,4:7) = Curves(Curves(:,1)==11,4:7);
             
             NewCurve = [];
             for i =1:60
@@ -83,17 +71,7 @@ switch size(Curves,2)
             SymCurves(SymCurves(:,1)==1,:) = PolA(PolA(:,1)==1,:);
             SymCurves(SymCurves(:,1)==2,:) = PolA(PolA(:,1)==2,:);
             SymCurves(SymCurves(:,1)==3,:) = PolA(PolA(:,1)==3,:);
-            
-            
-%             for i = 1:4
-%                 tmp = SymCurves(Curves(:,1)==(7+i),2);
-%                 tmp(SymCurves(Curves(:,1)==(7+i),2)>1) = tmp(SymCurves(Curves(:,1)==(7+i),2)>1) -1;
-%                 [~,b] = sort(tmp);
-%                 SymCurves(Curves(:,1)==(7+i),1:3) = tmp;
-%                 TMP = SymCurves(Curves(:,1)==(7+i),2:end);
-%                 SymCurves(Curves(:,1)==(7+i),2:end) = TMP(b,:);
-%             end
-            
+ 
         else
             mid = fix(size(Curves,1)/2);
             SymCurves = [Curves(:,1:7) , Curves(:,4:7)];

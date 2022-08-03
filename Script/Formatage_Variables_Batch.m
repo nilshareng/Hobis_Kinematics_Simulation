@@ -1,6 +1,6 @@
-% Deuxieme partie de la branche 'Batch' de la simulation cinématique (cf schema)
+% Deuxieme partie de la branche 'Batch' de la simulation cinématique (cf schéma)
 
-
+% Pour chaque simulation du 'Batch' : 
 % Reformatage des données pour correspondre à la simulation cinématique
 % 'manuelle'
 
@@ -75,7 +75,8 @@ Sequence.RKnee = 'z';
 
 [PosC,Markers,Reperes] = fcinematique([0 0 0 0 0 0 0 0 0 0 0], Sequence, Rmarkers, RReperes);
 
-Pre_Traitements;
-Boucle_Optimisation;
+if flag.logs 
+    disp('Formatage_Variables_Batch check'); 
+end
 
 
